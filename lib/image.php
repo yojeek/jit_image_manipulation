@@ -15,6 +15,7 @@
 	define_safe('MODE_RESIZE', 1);
 	define_safe('MODE_RESIZE_CROP', 2);
 	define_safe('MODE_CROP', 3);
+	define_safe('MODE_JCROP', 4);
 		
 	set_error_handler('__errorHandler');
 
@@ -30,11 +31,25 @@
 			'position' => 0,
 			'background' => 0,	
 			'file' => 0,
-			'external' => false
+			'external' => false,
+			'xpos' => 0,
+			'ypos' => 0,
+			'factor' => 1000
 		);
+		## Mode 4: JCrop
+		if(preg_match_all('/^4\/([0-9]+)\/([0-9]+)\/([0-9]+)\/([0-9]+)\/([0-9]+)\/(?:(0|1)\/)?(.+)$/i', $string, $matches, PREG_SET_ORDER)){
+			$param->mode = 4;
+			$param->width = $matches[0][1];
+			$param->height = $matches[0][2];			
+			$param->xpos = $matches[0][3];
+			$param->ypos = $matches[0][4];
+			$param->factor = $matches[0][5];
+			$param->external = (bool)$matches[0][6];			
+			$param->file = $matches[0][7];
+		}
 
 		## Mode 3: Resize Canvas
-		if(preg_match_all('/^3\/([0-9]+)\/([0-9]+)\/([1-9])\/([a-fA-f0-9]{3,6})\/(?:(0|1)\/)?(.+)$/i', $string, $matches, PREG_SET_ORDER)){
+		elseif(preg_match_all('/^3\/([0-9]+)\/([0-9]+)\/([1-9])\/([a-fA-f0-9]{3,6})\/(?:(0|1)\/)?(.+)$/i', $string, $matches, PREG_SET_ORDER)){
 			$param->mode = 3;
 			$param->width = $matches[0][1];
 			$param->height = $matches[0][2];			
@@ -238,6 +253,16 @@
 
 		case MODE_CROP:
 			$image->applyFilter('crop', array($param->width, $param->height, $param->position, $param->background));
+			break;
+			
+		case MODE_JCROP:
+			if ($param->factor < 1000) {
+				$dst_w = $image->Meta()->width * $param->factor / 1000;
+				if ($dst_w < $param->width) $dst_w = $param->width;
+				$image->applyFilter('resize', array($dst_w, NULL));
+			}
+		
+			$image->applyFilter('jcrop', array($param->width, $param->height, $param->xpos, $param->ypos, $param->factor, $param->background));
 			break;
 	}
 	
