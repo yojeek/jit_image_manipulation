@@ -4,7 +4,7 @@
 	
 	Class FilterJcrop extends ImageFilter{
 	
-		public static function run($res, $width, $height, $dst_x, $dst_y, $factor, $background_fill='fff'){
+		public static function run($res, $width, $height, $dst_x, $dst_y, $background_fill='fff'){
 
 			$dst_w = Image::width($res);
 			$dst_h = Image::height($res);
