@@ -18,10 +18,14 @@
 	define_safe('MODE_JCROP', 4);
 
 	set_error_handler('__errorHandler');
-
-	Lang::init(LANG . '/lang.%s.php', ($settings['symphony']['lang'] ? $settings['symphony']['lang'] : 'en'));
-
-
+	
+	if (method_exists('Lang','load')) {
+		Lang::load(LANG . '/lang.%s.php', ($settings['symphony']['lang'] ? $settings['symphony']['lang'] : 'en'));
+	}
+	else {
+		Lang::init(LANG . '/lang.%s.php', ($settings['symphony']['lang'] ? $settings['symphony']['lang'] : 'en'));
+	}
+		
 	function processParams($string){
 
 		$param = (object)array(
