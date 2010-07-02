@@ -102,7 +102,7 @@
 		if(error_reporting() != 0 && in_array($errno, array(E_WARNING, E_USER_WARNING, E_ERROR, E_USER_ERROR))){
 			$Log = new Log(ACTIVITY_LOG);
 
-			$Log->pushToLog("{$errno} - ".strip_tags((is_object($errstr) ? $errstr->generate() : $errstr)).($errfile ? " in file {$errfile}" : '') . ($errline ? " on line {$errline}" : ''), ($errno == E_WARNING || $errno == E_USER_WARNING ? Log::kWARNING : Log::kERROR), true);
+			$Log->pushToLog("{$errno} - ".strip_tags((is_object($errstr) ? $errstr->generate() : $errstr)).($errfile ? " in file {$errfile}" : '') . ($errline ? " on line {$errline}" : ''), ($errno == E_WARNING || $errno == E_USER_WARNING ? Log::WARNING : Log::ERROR), true);
 
 /*
 		stdClass Object
@@ -128,7 +128,7 @@
 					$param->file,
 					(bool)$param->external,
 					$_GET['param']
-				), Log::kNOTICE, true
+				), Log::NOTICE, true
 			);
 		}
 
@@ -137,9 +137,29 @@
 	$meta = $cache_file = NULL;
 
 	$image_path = ($param->external === true ? "http://{$param->file}" : WORKSPACE . "/{$param->file}");
+	
+	if($param->external !== true){
+		
+		$last_modified = filemtime($image_path);
+		$last_modified_gmt = gmdate('r', $last_modified);
+		$etag = md5($last_modified . $image_path);
+		
+	    header(sprintf('ETag: "%s"', $etag));
 
-	if($param->external === true){
+	    if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MATCH'])){
+	        if($_SERVER['HTTP_IF_MODIFIED_SINCE'] == $last_modified_gmt || str_replace('"', NULL, stripslashes($_SERVER['HTTP_IF_NONE_MATCH'])) == $etag){
+	            header('HTTP/1.1 304 Not Modified');
+	            exit();
+	        }
+	    }
 
+	    header('Last-Modified: ' . $last_modified_gmt);
+	    header('Cache-Control: public');
+
+	} 
+	
+	else {
+		
 		$rules = file(MANIFEST . '/jit-trusted-sites', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 		$allowed = false;
 
