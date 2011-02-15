@@ -36,7 +36,12 @@
 		}		
 		
 		public function __SavePreferences($context){
-			$context['settings']['image']['named_rules'] = serialize($context['settings']['image']['named_rules']);
+			// TODO: validation of named rules
+			if (isset($context['settings']['image']['named_rules'])) {
+				$context['settings']['image']['named_rules'] = serialize($context['settings']['image']['named_rules']);
+			} else {
+				$context['settings']['image']['named_rules'] = '';
+			}
 			$this->saveTrusted(stripslashes($_POST['jit_image_manipulation']['trusted_external_sites']));
 		}
 		
@@ -76,6 +81,7 @@
 			$li->setAttribute('class', 'template');
 			$li->appendChild(new XMLElement('h4', __('Rule')));
 
+			// TODO: help text for fields
 			$group = new XMLElement('div');
 			$group->setAttribute('class', 'group');
 			$label = Widget::Label(__('Name'));
