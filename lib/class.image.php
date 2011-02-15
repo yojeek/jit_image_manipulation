@@ -162,22 +162,43 @@
 			return true;
 		}
 		
-		public function addWatermark($watermark, $position = 5, $opacity = 25){
-			$watermark = imagecreatefrompng(WORKSPACE . "/{$watermark}");
+		public function addWatermark($path, $position = 9, $opacity = 25){
+			$meta = self::getMetaInformation($path);
 			
-			if (!is_resource($watermark)) return;
+			if (!isset($meta)) return;
 
+			switch($meta->type){
+				case IMAGETYPE_GIF:
+					$watermark = @imagecreatefromgif($path);
+					break;
+				case IMAGETYPE_JPEG: 
+					if($meta->channels <= 3){ 
+						$watermark = @imagecreatefromjpeg($path);
+					}
+					break;
+				case IMAGETYPE_PNG: 
+					$temp = @imagecreatefrompng($path);
+					$watermark = imagecreatetruecolor($meta->width, $meta->height);
+					imagealphablending($watermark, false);
+					imagesavealpha($watermark, true);
+					$transparent = imagecolorallocatealpha($watermark, 255, 255, 255, 127);
+					imagefilledrectangle($watermark, 0, 0, $meta->width, $meta->height, $transparent);
+					imagecopyresampled($watermark, $temp, 0, 0, 0, 0, $meta->width, $meta->height, $meta->width, $meta->height);
+					imagedestroy($temp);
+					break;
+			}
+			
 			// Set the margins for the watermark and get the height/width of the watermark image
 			// TODO: use $position
 			$margin_right = 10;
 			$margin_bottom = 10;
-			$sx = imagesx($watermark);
-			$sy = imagesy($watermark);
+			$sx = $meta->width;
+			$sy = $meta->height;
 
 			// Copy the watermark image onto our photo using the margin offsets and the image 
 			// width to calculate positioning of the watermark. 
-			imagecopymerge($this->_resource, $watermark, imagesx($this->_resource) - $sx - $margin_right, imagesy($this->_resource) - $sy - $margin_bottom, 0, 0, imagesx($watermark), imagesy($watermark), $opacity);
-
+			imagecopymerge($this->_resource, $watermark, imagesx($this->_resource) - $sx - $margin_right, imagesy($this->_resource) - $sy - $margin_bottom, 0, 0, $sx, $sy, $opacity);
+			
 			// Free memory
 			imagedestroy($watermark);
 		}
