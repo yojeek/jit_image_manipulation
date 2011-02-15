@@ -162,24 +162,24 @@
 			return true;
 		}
 		
-		public function addWatermark($watermark){
-			// watermarking test START
-			$stamp = imagecreatetruecolor(100, 70);
-			imagefilledrectangle($stamp, 0, 0, 99, 69, 0x0000FF);
-			imagefilledrectangle($stamp, 9, 9, 90, 60, 0xFFFFFF);
-			imagestring($stamp, 5, 20, 20, 'IPP', 0x0000FF);
-			imagestring($stamp, 3, 20, 40, '(c) 2011', 0x0000FF);
+		public function addWatermark($watermark, $position = 5, $opacity = 25){
+			$watermark = imagecreatefrompng(WORKSPACE . "/{$watermark}");
+			
+			if (!is_resource($watermark)) return;
 
-			// Set the margins for the stamp and get the height/width of the stamp image
-			$marge_right = 10;
-			$marge_bottom = 10;
-			$sx = imagesx($stamp);
-			$sy = imagesy($stamp);
+			// Set the margins for the watermark and get the height/width of the watermark image
+			// TODO: use $position
+			$margin_right = 10;
+			$margin_bottom = 10;
+			$sx = imagesx($watermark);
+			$sy = imagesy($watermark);
 
-			// Merge the stamp onto our photo with an opacity (transparency) of 50%
-			imagecopymerge($this->_resource, $stamp, imagesx($this->_resource) - $sx - $marge_right, imagesy($this->_resource) - $sy - $marge_bottom, 0, 0, imagesx($stamp), imagesy($stamp), 50);
-			// watermarking test END
-			return true;
+			// Copy the watermark image onto our photo using the margin offsets and the image 
+			// width to calculate positioning of the watermark. 
+			imagecopymerge($this->_resource, $watermark, imagesx($this->_resource) - $sx - $margin_right, imagesy($this->_resource) - $sy - $margin_bottom, 0, 0, imagesx($watermark), imagesy($watermark), $opacity);
+
+			// Free memory
+			imagedestroy($watermark);
 		}
 		
 		public function display($quality=NULL, $interlacing=NULL, $output=NULL){
