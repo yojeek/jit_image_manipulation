@@ -40,6 +40,7 @@
 			'ypos' => 0,
 			'factor' => 1000
 		);
+
 		## Mode 4: JCrop
 		if(preg_match_all('/^4\/([0-9]+)\/([0-9]+)\/([0-9]+)\/([0-9]+)\/([0-9]+)\/([0-9]+)\/(?:(0|1)\/)?(.+)$/i', $string, $matches, PREG_SET_ORDER)){
 			$param->mode = 4;
@@ -92,7 +93,27 @@
 		return $param;
 	}
 
-	$param = processParams($_GET['param']);
+	$image_param = $_GET['param'];
+	
+	// named rules
+	if(preg_match_all('/^([a-z]+\w*)\/(.+)$/i', $_GET['param'], $matches, PREG_SET_ORDER)){
+		$rule_name = $matches[0][1];
+		$file = $matches[0][2];
+		$named_rules = unserialize($settings['image']['named_rules']);
+		
+		// check for named rule
+		if (is_array($named_rules[$rule_name]) && !empty($named_rules[$rule_name])) {
+			$named_rule = $named_rules[$rule_name];
+			$rule = $named_rule['rule'];
+			$image_param = $rule . $file;
+		} else {
+			header('HTTP/1.0 404 Not Found');
+			trigger_error(__('Named rule <code>%s</code> could not be found.', array($param->rule_name)), E_USER_ERROR);
+			exit;
+		}
+	}
+	
+	$param = processParams($image_param);
 	define_safe('CACHING', ($param->external == false && $settings['image']['cache'] == 1 ? true : false));
 
 	function __errorHandler($errno=NULL, $errstr, $errfile=NULL, $errline=NULL, $errcontext=NULL){
@@ -286,6 +307,11 @@
 			$image->applyFilter('resize', array($param->width, $param->height));
 
 			break;
+	}
+	
+	// check for watermark in named rule
+	if (isset($named_rule['watermark'])) {
+		$image->addWatermark($named_rule['watermark']);
 	}
 
 	if(!$image->display(intval($settings['image']['quality']))) trigger_error(__('Error generating image'), E_USER_ERROR);
