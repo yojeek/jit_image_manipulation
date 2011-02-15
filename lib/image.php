@@ -314,8 +314,11 @@
 	}
 	
 	// check for watermark in named rule
-	if (isset($named_rule['watermark'])) {
-		$image->addWatermark($named_rule['watermark']);
+	$watermark = $named_rule['watermark'];
+	if (isset($watermark) && is_file(WORKSPACE . "/{$watermark}") && is_readable(WORKSPACE . "/{$watermark}")) {
+		$position = $named_rule['watermark-position'] ? $named_rule['watermark-position'] : 9;
+		$opacity = $named_rule['opacity'] ? $named_rule['opacity'] : 25;
+		$image->addWatermark(WORKSPACE . "/{$watermark}", $position, $opacity);
 	}
 
 	if(!$image->display(intval($settings['image']['quality']))) trigger_error(__('Error generating image'), E_USER_ERROR);
