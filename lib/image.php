@@ -96,20 +96,24 @@
 	$image_param = $_GET['param'];
 	
 	// named rules
-	if(preg_match_all('/^([a-z]+\w*)\/(.+)$/i', $_GET['param'], $matches, PREG_SET_ORDER)){
-		$rule_name = $matches[0][1];
-		$file = $matches[0][2];
-		$named_rules = unserialize($settings['image']['named_rules']);
-		
-		// check for named rule
-		if (is_array($named_rules[$rule_name]) && !empty($named_rules[$rule_name])) {
-			$named_rule = $named_rules[$rule_name];
-			$rule = $named_rule['rule'];
-			$image_param = $rule . $file;
-		} else {
-			header('HTTP/1.0 404 Not Found');
-			trigger_error(__('Named rule <code>%s</code> could not be found.', array($param->rule_name)), E_USER_ERROR);
-			exit;
+	// TODO: make Mode 0 work again
+	// TODO: option to disable normal (un-named) modes
+	$named_rules = unserialize(stripslashes($settings['image']['named_rules']));
+	if (is_array($named_rules) && !empty($named_rules)) {
+		if(preg_match_all('/^([a-z]+\w*)\/(.+)$/i', $_GET['param'], $matches, PREG_SET_ORDER)){
+			$rule_name = $matches[0][1];
+			$file = $matches[0][2];
+
+			// check for existence of named rule
+			$named_rule = current(array_filter($named_rules, function ($rule) use ($rule_name) { return ($rule['name'] == $rule_name);}));
+			if (is_array($named_rule) && !empty($named_rule)) {
+				$url_parameters = $named_rule['url-parameters'];
+				$image_param = $url_parameters . $file;
+			} else {
+				header('HTTP/1.0 404 Not Found');
+				trigger_error(__('Named rule <code>%s</code> could not be found.', array($rule_name)), E_USER_ERROR);
+				exit;
+			}
 		}
 	}
 	
