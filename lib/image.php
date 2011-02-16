@@ -93,23 +93,29 @@
 		return $param;
 	}
 
-	$image_param = $_GET['param'];
+	$jit_param = $_GET['param'];
 	
 	// custom rules
-	// TODO: make Mode 0 work again
-	// TODO: option to disable normal modes
 	$custom_rules = unserialize(base64_decode($settings['image']['custom_rules']));
 	if (is_array($custom_rules) && !empty($custom_rules)) {
 		foreach($custom_rules as $rule) {
-			if(preg_match($rule['from'], $image_param, $matches) == 1) {
-				$image_param = preg_replace($rule['from'], $rule['to'], $image_param);
+			if(preg_match($rule['from'], $jit_param, $matches) == 1) {
+				$jit_param = preg_replace($rule['from'], $rule['to'], $jit_param);
 				$custom_rule = $rule;
 				break;
 			}
 		}
 	}
 	
-	$param = processParams($image_param);
+	// check if only custom rules are allowed
+	if($settings['image']['disable_regular_rules'] == 'yes' && empty($custom_rule)){
+		header('HTTP/1.0 404 Not Found');
+		trigger_error(__('Regular JIT rules are disabled and no matching custom rule is found.'), E_USER_ERROR);
+		exit;
+	}
+	
+	$param = processParams($jit_param);
+
 	define_safe('CACHING', ($param->external == false && $settings['image']['cache'] == 1 ? true : false));
 
 	function __errorHandler($errno=NULL, $errstr, $errfile=NULL, $errline=NULL, $errcontext=NULL){

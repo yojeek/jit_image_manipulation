@@ -42,6 +42,11 @@
 			} else {
 				$context['settings']['image']['custom_rules'] = '';
 			}
+
+			if(!isset($context['settings']['image']['disable_regular_rules'])){
+				$context['settings']['image']['disable_regular_rules'] = 'no';
+			}
+
 			$this->saveTrusted(stripslashes($_POST['jit_image_manipulation']['trusted_external_sites']));
 		}
 		
@@ -148,6 +153,16 @@
 			
 			$fieldset->appendChild($subsection);
 			
+			$fieldset->appendChild(new XMLElement('p', __('Define regex rules for JIT parameter re-routing.'), array('class' => 'help')));
+			
+			$label = Widget::Label();
+			$input = Widget::Input('settings[image][disable_regular_rules]', 'yes', 'checkbox');
+			if(Symphony::Configuration()->get('disable_regular_rules', 'image') == 'yes') $input->setAttribute('checked', 'checked');
+			$label->setValue($input->generate() . ' ' . __('Disable regular JIT rules'));
+			$fieldset->appendChild($label);
+			
+			$fieldset->appendChild(new XMLElement('p', __('Check this field if you want to allow only custom JIT rules.'), array('class' => 'help')));
+
 			$context['wrapper']->appendChild($fieldset);
 			
 		}
