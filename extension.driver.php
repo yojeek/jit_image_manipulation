@@ -84,11 +84,11 @@
 			// TODO: help text for fields
 			$group = new XMLElement('div');
 			$group->setAttribute('class', 'group');
-			$label = Widget::Label(__('Name'));
-			$label->appendChild(Widget::Input('settings[image][custom_rules][-1][name]'));
+			$label = Widget::Label(__('From'));
+			$label->appendChild(Widget::Input('settings[image][custom_rules][-1][from]'));
 			$group->appendChild($label);
-			$label = Widget::Label(__('URL parameters'));
-			$label->appendChild(Widget::Input('settings[image][custom_rules][-1][url-parameters]'));
+			$label = Widget::Label(__('To'));
+			$label->appendChild(Widget::Input('settings[image][custom_rules][-1][to]'));
 			$group->appendChild($label);
 			$li->appendChild($group);
 
@@ -100,7 +100,7 @@
 			$label = Widget::Label(__('Watermark position'));
 			$options = array();
 			for ($i = 1; $i <= 9; $i++) { 
-				$options[$i] = array($i);
+				$options[$i] = array($i, false, $positions[$i - 1]);
 			}
 			$label->appendChild(Widget::Select('settings[image][custom_rules][-1][watermark-position]', $options));
 			$group->appendChild($label);
@@ -117,11 +117,11 @@
 
 					$group = new XMLElement('div');
 					$group->setAttribute('class', 'group');
-					$label = Widget::Label(__('Name'));
-					$label->appendChild(Widget::Input("settings[image][custom_rules][{$i}][name]", $rule['name']));
+					$label = Widget::Label(__('From'));
+					$label->appendChild(Widget::Input("settings[image][custom_rules][{$i}][from]", $rule['from']));
 					$group->appendChild($label);
-					$label = Widget::Label(__('URL parameters'));
-					$label->appendChild(Widget::Input("settings[image][custom_rules][{$i}][url-parameters]", $rule['url-parameters']));
+					$label = Widget::Label(__('To'));
+					$label->appendChild(Widget::Input("settings[image][custom_rules][{$i}][to]", $rule['to']));
 					$group->appendChild($label);
 					$li->appendChild($group);
 

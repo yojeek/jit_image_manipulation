@@ -100,23 +100,16 @@
 	// TODO: option to disable normal modes
 	$custom_rules = unserialize(stripslashes($settings['image']['custom_rules']));
 	if (is_array($custom_rules) && !empty($custom_rules)) {
-
-		if(preg_match_all('/^([a-z]+\w*)\/(.+)$/i', $_GET['param'], $matches, PREG_SET_ORDER)){
-			$rule_name = $matches[0][1];
-			$file = $matches[0][2];
-
-			// check for existence of custom rule
-			$custom_rule = current(array_filter($custom_rules, function ($rule) use ($rule_name) { return ($rule['name'] == $rule_name);}));
-			if (is_array($custom_rule) && !empty($custom_rule)) {
-				$url_parameters = $custom_rule['url-parameters'];
-				$image_param = $url_parameters . $file;
-			} else {
-				header('HTTP/1.0 404 Not Found');
-				trigger_error(__('Custom rule <code>%s</code> could not be found.', array($rule_name)), E_USER_ERROR);
-				exit;
+		foreach($custom_rules as $rule) {
+			// var_dump($image_param);
+			// var_dump($rule['from']);
+			// var_dump($rule['to']);
+			if(preg_match($rule['from'], $image_param, $matches) == 1) {
+				$image_param = preg_replace($rule['from'], $rule['to'], $image_param);
+				$custom_rule = $rule;
+				break;
 			}
 		}
-
 	}
 	
 	$param = processParams($image_param);
