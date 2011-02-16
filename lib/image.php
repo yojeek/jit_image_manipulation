@@ -313,11 +313,22 @@
 	
 	// check for watermark in custom rule
 	$watermark = $custom_rule['watermark'];
-	if (isset($watermark) && is_file(WORKSPACE . "/{$watermark}") && is_readable(WORKSPACE . "/{$watermark}")) {
+	if (isset($watermark)) {
+		// absolute
+		if (substr($watermark, 0, 1) == '/') {
+			$path = URL . "{$watermark}";
+		}
+		// relative to WORKSPACE
+		else {
+			$path = WORKSPACE . "/{$watermark}";
+		}
 		$position = $custom_rule['watermark-position'] ? $custom_rule['watermark-position'] : 9;
-		$opacity = $custom_rule['opacity'] ? $custom_rule['opacity'] : 25;
-		$image->addWatermark(WORKSPACE . "/{$watermark}", $position, $opacity);
+		$opacity = $custom_rule['watermark-opacity'] ? $custom_rule['watermark-opacity'] : 25;
+		$image->addWatermark($path, $position, $opacity);
 	}
+
+	// set custom image quality
+	if (!empty($custom_rule['quality'])) $settings['image']['quality'] = $custom_rule['quality'];
 
 	if(!$image->display(intval($settings['image']['quality']))) trigger_error(__('Error generating image'), E_USER_ERROR);
 

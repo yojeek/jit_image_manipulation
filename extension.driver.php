@@ -91,7 +91,6 @@
 			$li->setAttribute('class', 'template');
 			$li->appendChild(new XMLElement('h4', __('Rule')));
 
-			// TODO: help text for fields
 			$group = new XMLElement('div');
 			$group->setAttribute('class', 'group');
 			$label = Widget::Label(__('From'));
@@ -104,16 +103,28 @@
 
 			$group = new XMLElement('div');
 			$group->setAttribute('class', 'group');
-			$label = Widget::Label(__('Watermark'));
+			$label = Widget::Label(__('Image quality'));
 			$label->appendChild(new XMLElement('i', __('Optional')));
-			$label->appendChild(Widget::Input('settings[image][custom_rules][-1][watermark]'));
+			$label->appendChild(Widget::Input("settings[image][custom_rules][-1][quality]"));
+			$group->appendChild($label);
+			$label = Widget::Label(__('Watermark path'));
+			$label->appendChild(new XMLElement('i', __('Optional')));
+			$label->appendChild(Widget::Input("settings[image][custom_rules][-1][watermark]"));
+			$group->appendChild($label);
+			$li->appendChild($group);
+
+			$group = new XMLElement('div');
+			$group->setAttribute('class', 'group');
+			$label = Widget::Label(__('Watermark opacity'));
+			$label->appendChild(new XMLElement('i', __('Optional')));
+			$label->appendChild(Widget::Input("settings[image][custom_rules][-1][watermark-opacity]"));
 			$group->appendChild($label);
 			$label = Widget::Label(__('Watermark position'));
 			$options = array();
 			for ($i = 1; $i <= 9; $i++) { 
 				$options[$i] = array($i, false, $positions[$i - 1]);
 			}
-			$label->appendChild(Widget::Select('settings[image][custom_rules][-1][watermark-position]', $options));
+			$label->appendChild(Widget::Select("settings[image][custom_rules][-1][watermark-position]", $options));
 			$group->appendChild($label);
 			$li->appendChild($group);
 
@@ -136,9 +147,21 @@
 
 					$group = new XMLElement('div');
 					$group->setAttribute('class', 'group');
-					$label = Widget::Label(__('Watermark'));
+					$label = Widget::Label(__('Image quality'));
+					$label->appendChild(new XMLElement('i', __('Optional')));
+					$label->appendChild(Widget::Input("settings[image][custom_rules][{$i}][quality]", $rule['quality']));
+					$group->appendChild($label);
+					$label = Widget::Label(__('Watermark path'));
 					$label->appendChild(new XMLElement('i', __('Optional')));
 					$label->appendChild(Widget::Input("settings[image][custom_rules][{$i}][watermark]", $rule['watermark']));
+					$group->appendChild($label);
+					$li->appendChild($group);
+
+					$group = new XMLElement('div');
+					$group->setAttribute('class', 'group');
+					$label = Widget::Label(__('Watermark opacity'));
+					$label->appendChild(new XMLElement('i', __('Optional')));
+					$label->appendChild(Widget::Input("settings[image][custom_rules][{$i}][watermark-opacity]", $rule['watermark-opacity']));
 					$group->appendChild($label);
 					$label = Widget::Label(__('Watermark position'));
 					$options = array();
