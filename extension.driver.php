@@ -28,16 +28,19 @@
 		}
 		
 		public function trusted(){
-		    return (file_exists(MANIFEST . '/jit-trusted-sites') ? @file_get_contents(MANIFEST . '/jit-trusted-sites') : NULL);
+			return (file_exists(MANIFEST . '/jit-trusted-sites') ? @file_get_contents(MANIFEST . '/jit-trusted-sites') : NULL);
 		}
 		
 		public function saveTrusted($string){
 			return @file_put_contents(MANIFEST . '/jit-trusted-sites', $string);
-		}		
+		}
 		
 		public function __SavePreferences($context){
-			// TODO: validation of custom rules
-			if (isset($context['settings']['image']['custom_rules'])) {
+			if (is_array($context['settings']['image']['custom_rules']) && !empty($context['settings']['image']['custom_rules'])) {
+				foreach ($context['settings']['image']['custom_rules'] as $i => $rule) {
+					// don't save rules with missind "from" and "to" values
+					if (empty($rule['from']) || empty($rule['to'])) unset($context['settings']['image']['custom_rules'][$i]);
+				}
 				$context['settings']['image']['custom_rules'] = base64_encode(serialize($context['settings']['image']['custom_rules']));
 			} else {
 				$context['settings']['image']['custom_rules'] = '';
@@ -51,6 +54,8 @@
 		}
 		
 		public function appendPreferences($context){
+			
+			$errors = Administration::instance()->Page->_errors['image']['custom_rules'];
 
 			$fieldset = new XMLElement('fieldset');
 			$fieldset->setAttribute('class', 'settings');
@@ -100,6 +105,7 @@
 			$group = new XMLElement('div');
 			$group->setAttribute('class', 'group');
 			$label = Widget::Label(__('Watermark'));
+			$label->appendChild(new XMLElement('i', __('Optional')));
 			$label->appendChild(Widget::Input('settings[image][custom_rules][-1][watermark]'));
 			$group->appendChild($label);
 			$label = Widget::Label(__('Watermark position'));
@@ -112,10 +118,8 @@
 			$li->appendChild($group);
 
 			$ol->appendChild($li);
-
 			if(is_array($custom_rules)) {
-				$i = 1;
-				foreach($custom_rules as $rule) {
+				foreach($custom_rules as $i => $rule) {
 					$li = new XMLElement('li');
 					$li->setAttribute('class', 'instance expanded');
 					$li->appendChild(new XMLElement('h4', __('Rule')));
@@ -133,6 +137,7 @@
 					$group = new XMLElement('div');
 					$group->setAttribute('class', 'group');
 					$label = Widget::Label(__('Watermark'));
+					$label->appendChild(new XMLElement('i', __('Optional')));
 					$label->appendChild(Widget::Input("settings[image][custom_rules][{$i}][watermark]", $rule['watermark']));
 					$group->appendChild($label);
 					$label = Widget::Label(__('Watermark position'));
@@ -145,7 +150,6 @@
 					$li->appendChild($group);
 
 					$ol->appendChild($li);
-					$i++;
 				}
 			}
 
@@ -153,7 +157,7 @@
 			
 			$fieldset->appendChild($subsection);
 			
-			$fieldset->appendChild(new XMLElement('p', __('Define regex rules for JIT parameter re-routing.'), array('class' => 'help')));
+			$fieldset->appendChild(new XMLElement('p', __('Define regex rules for JIT parameter re-routing. Rules with empty <code>From</code> or <code>To</code> field will be discarded.'), array('class' => 'help')));
 			
 			$label = Widget::Label();
 			$input = Widget::Input('settings[image][disable_regular_rules]', 'yes', 'checkbox');
