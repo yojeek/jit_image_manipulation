@@ -188,18 +188,58 @@
 					break;
 			}
 			
-			// Set the margins for the watermark and get the height/width of the watermark image
-			// TODO: use $position
-			$margin_right = 10;
-			$margin_bottom = 10;
-			$sx = $meta->width;
-			$sy = $meta->height;
-
-			// Copy the watermark image onto our photo using the margin offsets and the image 
-			// width to calculate positioning of the watermark. 
-			imagecopymerge($this->_resource, $watermark, imagesx($this->_resource) - $sx - $margin_right, imagesy($this->_resource) - $sy - $margin_bottom, 0, 0, $sx, $sy, $opacity);
+			// set the position for the watermark
+			$imageW = imagesx($this->_resource);
+			$imageH = imagesy($this->_resource);
+			$watermarkW = $meta->width;
+			$watermarkH = $meta->height;
+			$margin = 10;
+			$positionX = $margin;
+			$positionY = $margin;
 			
-			// Free memory
+			switch ($position) {
+				case 1:
+					$positionX = $margin;
+					$positionY = $margin;
+					break;
+				case 2:
+					$positionX = ($imageW - $watermarkW) / 2;
+					$positionY = $margin;
+					break;
+				case 3:
+					$positionX = $imageW - $watermarkW - $margin;
+					$positionY = $margin;
+					break;
+				case 4:
+					$positionX = $margin;
+					$positionY = ($imageH - $watermarkH) / 2;
+					break;
+				case 5:
+					$positionX = ($imageW - $watermarkW) / 2;
+					$positionY = ($imageH - $watermarkH) / 2;
+					break;
+				case 6:
+					$positionX = $imageW - $watermarkW - $margin;
+					$positionY = ($imageH - $watermarkH) / 2;
+					break;
+				case 7:
+					$positionX = $margin;
+					$positionY = $imageH - $watermarkH - $margin;
+					break;
+				case 8:
+					$positionX = ($imageW - $watermarkW) / 2;
+					$positionY = $imageH - $watermarkH - $margin;
+					break;
+				case 9:
+					$positionX = $imageW - $watermarkW - $margin;
+					$positionY = $imageH - $watermarkH - $margin;
+					break;
+			}
+
+			// copy the watermark image onto the image
+			imagecopymerge($this->_resource, $watermark, $positionX, $positionY, 0, 0, $watermarkW, $watermarkH, $opacity);
+			
+			// free memory
 			imagedestroy($watermark);
 		}
 		
