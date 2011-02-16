@@ -38,7 +38,7 @@
 		public function __SavePreferences($context){
 			// TODO: validation of custom rules
 			if (isset($context['settings']['image']['custom_rules'])) {
-				$context['settings']['image']['custom_rules'] = serialize($context['settings']['image']['custom_rules']);
+				$context['settings']['image']['custom_rules'] = base64_encode(serialize($context['settings']['image']['custom_rules']));
 			} else {
 				$context['settings']['image']['custom_rules'] = '';
 			}
@@ -59,7 +59,7 @@
 			$fieldset->appendChild(new XMLElement('p', __('Leave empty to disable external linking. Single rule per line. Add * at end for wild card matching.'), array('class' => 'help')));
 			
 			// custom rules
-			$custom_rules = unserialize(Symphony::Configuration()->get('custom_rules', 'image'));
+			$custom_rules = unserialize(base64_decode(Symphony::Configuration()->get('custom_rules', 'image')));
 			$positions = array(
 				__('Left top'),
 				__('Center top'),

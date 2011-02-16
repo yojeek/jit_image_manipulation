@@ -98,12 +98,9 @@
 	// custom rules
 	// TODO: make Mode 0 work again
 	// TODO: option to disable normal modes
-	$custom_rules = unserialize(stripslashes($settings['image']['custom_rules']));
+	$custom_rules = unserialize(base64_decode($settings['image']['custom_rules']));
 	if (is_array($custom_rules) && !empty($custom_rules)) {
 		foreach($custom_rules as $rule) {
-			// var_dump($image_param);
-			// var_dump($rule['from']);
-			// var_dump($rule['to']);
 			if(preg_match($rule['from'], $image_param, $matches) == 1) {
 				$image_param = preg_replace($rule['from'], $rule['to'], $image_param);
 				$custom_rule = $rule;
