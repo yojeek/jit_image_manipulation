@@ -95,26 +95,28 @@
 
 	$image_param = $_GET['param'];
 	
-	// named rules
+	// custom rules
 	// TODO: make Mode 0 work again
-	// TODO: option to disable normal (un-named) modes
-	$named_rules = unserialize(stripslashes($settings['image']['named_rules']));
-	if (is_array($named_rules) && !empty($named_rules)) {
+	// TODO: option to disable normal modes
+	$custom_rules = unserialize(stripslashes($settings['image']['custom_rules']));
+	if (is_array($custom_rules) && !empty($custom_rules)) {
+
 		if(preg_match_all('/^([a-z]+\w*)\/(.+)$/i', $_GET['param'], $matches, PREG_SET_ORDER)){
 			$rule_name = $matches[0][1];
 			$file = $matches[0][2];
 
-			// check for existence of named rule
-			$named_rule = current(array_filter($named_rules, function ($rule) use ($rule_name) { return ($rule['name'] == $rule_name);}));
-			if (is_array($named_rule) && !empty($named_rule)) {
-				$url_parameters = $named_rule['url-parameters'];
+			// check for existence of custom rule
+			$custom_rule = current(array_filter($custom_rules, function ($rule) use ($rule_name) { return ($rule['name'] == $rule_name);}));
+			if (is_array($custom_rule) && !empty($custom_rule)) {
+				$url_parameters = $custom_rule['url-parameters'];
 				$image_param = $url_parameters . $file;
 			} else {
 				header('HTTP/1.0 404 Not Found');
-				trigger_error(__('Named rule <code>%s</code> could not be found.', array($rule_name)), E_USER_ERROR);
+				trigger_error(__('Custom rule <code>%s</code> could not be found.', array($rule_name)), E_USER_ERROR);
 				exit;
 			}
 		}
+
 	}
 	
 	$param = processParams($image_param);
@@ -313,11 +315,11 @@
 			break;
 	}
 	
-	// check for watermark in named rule
-	$watermark = $named_rule['watermark'];
+	// check for watermark in custom rule
+	$watermark = $custom_rule['watermark'];
 	if (isset($watermark) && is_file(WORKSPACE . "/{$watermark}") && is_readable(WORKSPACE . "/{$watermark}")) {
-		$position = $named_rule['watermark-position'] ? $named_rule['watermark-position'] : 9;
-		$opacity = $named_rule['opacity'] ? $named_rule['opacity'] : 25;
+		$position = $custom_rule['watermark-position'] ? $custom_rule['watermark-position'] : 9;
+		$opacity = $custom_rule['opacity'] ? $custom_rule['opacity'] : 25;
 		$image->addWatermark(WORKSPACE . "/{$watermark}", $position, $opacity);
 	}
 

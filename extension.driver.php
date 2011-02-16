@@ -36,11 +36,11 @@
 		}		
 		
 		public function __SavePreferences($context){
-			// TODO: validation of named rules
-			if (isset($context['settings']['image']['named_rules'])) {
-				$context['settings']['image']['named_rules'] = serialize($context['settings']['image']['named_rules']);
+			// TODO: validation of custom rules
+			if (isset($context['settings']['image']['custom_rules'])) {
+				$context['settings']['image']['custom_rules'] = serialize($context['settings']['image']['custom_rules']);
 			} else {
-				$context['settings']['image']['named_rules'] = '';
+				$context['settings']['image']['custom_rules'] = '';
 			}
 			$this->saveTrusted(stripslashes($_POST['jit_image_manipulation']['trusted_external_sites']));
 		}
@@ -58,8 +58,8 @@
 			
 			$fieldset->appendChild(new XMLElement('p', __('Leave empty to disable external linking. Single rule per line. Add * at end for wild card matching.'), array('class' => 'help')));
 			
-			// named rules
-			$named_rules = unserialize(Symphony::Configuration()->get('named_rules', 'image'));
+			// custom rules
+			$custom_rules = unserialize(Symphony::Configuration()->get('custom_rules', 'image'));
 			$positions = array(
 				__('Left top'),
 				__('Center top'),
@@ -74,7 +74,7 @@
 			
 			$subsection = new XMLElement('div');
 			$subsection->setAttribute('class', 'subsection');
-			$subsection->appendChild(new XMLElement('h3', __('Named Rules'), array('class' => 'label')));
+			$subsection->appendChild(new XMLElement('h3', __('Custom Rules'), array('class' => 'label')));
  
 			$ol = new XMLElement('ol');
 			$li = new XMLElement('li');
@@ -85,32 +85,32 @@
 			$group = new XMLElement('div');
 			$group->setAttribute('class', 'group');
 			$label = Widget::Label(__('Name'));
-			$label->appendChild(Widget::Input('settings[image][named_rules][-1][name]'));
+			$label->appendChild(Widget::Input('settings[image][custom_rules][-1][name]'));
 			$group->appendChild($label);
 			$label = Widget::Label(__('URL parameters'));
-			$label->appendChild(Widget::Input('settings[image][named_rules][-1][url-parameters]'));
+			$label->appendChild(Widget::Input('settings[image][custom_rules][-1][url-parameters]'));
 			$group->appendChild($label);
 			$li->appendChild($group);
 
 			$group = new XMLElement('div');
 			$group->setAttribute('class', 'group');
 			$label = Widget::Label(__('Watermark'));
-			$label->appendChild(Widget::Input('settings[image][named_rules][-1][watermark]'));
+			$label->appendChild(Widget::Input('settings[image][custom_rules][-1][watermark]'));
 			$group->appendChild($label);
 			$label = Widget::Label(__('Watermark position'));
 			$options = array();
 			for ($i = 1; $i <= 9; $i++) { 
 				$options[$i] = array($i);
 			}
-			$label->appendChild(Widget::Select('settings[image][named_rules][-1][watermark-position]', $options));
+			$label->appendChild(Widget::Select('settings[image][custom_rules][-1][watermark-position]', $options));
 			$group->appendChild($label);
 			$li->appendChild($group);
 
 			$ol->appendChild($li);
 
-			if(is_array($named_rules)) {
+			if(is_array($custom_rules)) {
 				$i = 1;
-				foreach($named_rules as $rule) {
+				foreach($custom_rules as $rule) {
 					$li = new XMLElement('li');
 					$li->setAttribute('class', 'instance expanded');
 					$li->appendChild(new XMLElement('h4', __('Rule')));
@@ -118,24 +118,24 @@
 					$group = new XMLElement('div');
 					$group->setAttribute('class', 'group');
 					$label = Widget::Label(__('Name'));
-					$label->appendChild(Widget::Input("settings[image][named_rules][{$i}][name]", $rule['name']));
+					$label->appendChild(Widget::Input("settings[image][custom_rules][{$i}][name]", $rule['name']));
 					$group->appendChild($label);
 					$label = Widget::Label(__('URL parameters'));
-					$label->appendChild(Widget::Input("settings[image][named_rules][{$i}][url-parameters]", $rule['url-parameters']));
+					$label->appendChild(Widget::Input("settings[image][custom_rules][{$i}][url-parameters]", $rule['url-parameters']));
 					$group->appendChild($label);
 					$li->appendChild($group);
 
 					$group = new XMLElement('div');
 					$group->setAttribute('class', 'group');
 					$label = Widget::Label(__('Watermark'));
-					$label->appendChild(Widget::Input("settings[image][named_rules][{$i}][watermark]", $rule['watermark']));
+					$label->appendChild(Widget::Input("settings[image][custom_rules][{$i}][watermark]", $rule['watermark']));
 					$group->appendChild($label);
 					$label = Widget::Label(__('Watermark position'));
 					$options = array();
 					for ($i = 1; $i <= 9; $i++) { 
 						$options[$i] = array($i, ($i == $rule['watermark-position']), $positions[$i - 1]);
 					}
-					$label->appendChild(Widget::Select("settings[image][named_rules][{$i}][watermark-position]", $options));
+					$label->appendChild(Widget::Select("settings[image][custom_rules][{$i}][watermark-position]", $options));
 					$group->appendChild($label);
 					$li->appendChild($group);
 
