@@ -177,14 +177,7 @@
 					}
 					break;
 				case IMAGETYPE_PNG: 
-					$temp = @imagecreatefrompng($path);
-					$watermark = imagecreatetruecolor($meta->width, $meta->height);
-					imagealphablending($watermark, false);
-					imagesavealpha($watermark, true);
-					$transparent = imagecolorallocatealpha($watermark, 255, 255, 255, 127);
-					imagefilledrectangle($watermark, 0, 0, $meta->width, $meta->height, $transparent);
-					imagecopyresampled($watermark, $temp, 0, 0, 0, 0, $meta->width, $meta->height, $meta->width, $meta->height);
-					imagedestroy($temp);
+					$watermark = @imagecreatefrompng($path);
 					break;
 			}
 			
