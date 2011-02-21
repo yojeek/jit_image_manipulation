@@ -229,12 +229,32 @@
 					break;
 			}
 
+			imagealphablending($this->_resource, true);
+
 			// copy the watermark image onto the image
-			imagecopymerge($this->_resource, $watermark, $positionX, $positionY, 0, 0, $watermarkW, $watermarkH, $opacity);
-			
+			self::imagecopymerge_alpha($this->_resource, $watermark, $positionX, $positionY, 0, 0, $watermarkW, $watermarkH, $opacity);
+
 			// free memory
 			imagedestroy($watermark);
 		}
+		
+		// http://www.php.net/manual/en/function.imagecopymerge.php#92787
+		public static function imagecopymerge_alpha($dst_im, $src_im, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h, $pct){ 
+				// creating a cut resource 
+				$cut = imagecreatetruecolor($src_w, $src_h); 
+
+				// copying relevant section from background to the cut resource 
+				imagecopy($cut, $dst_im, 0, 0, $dst_x, $dst_y, $src_w, $src_h); 
+				
+				// copying relevant section from watermark to the cut resource 
+				imagecopy($cut, $src_im, 0, 0, $src_x, $src_y, $src_w, $src_h); 
+				
+				// insert cut resource to destination image 
+				imagecopymerge($dst_im, $cut, $dst_x, $dst_y, 0, 0, $src_w, $src_h, $pct); 
+				
+				imagedestroy($cut);
+		} 
+
 		
 		public function display($quality=NULL, $interlacing=NULL, $output=NULL){
 					
