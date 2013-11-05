@@ -28,7 +28,7 @@
 			}
 
 			$tmp = imagecreatetruecolor($dst_w, $dst_h);
-			self::__fill($tmp, $background_fill);
+			self::__fill($res, $tmp, $background_fill);
 
 			imagecopyresampled($tmp, $res, $src_x, $src_y, $dst_x, $dst_y, Image::width($res), Image::height($res), Image::width($res), Image::height($res));
 			
